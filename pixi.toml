@@ -1,0 +1,19 @@
+[project]
+name = "scripts"
+version = "0.1.0"
+description = "Add your description here"
+channels = ["conda-forge"]
+platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
+
+[dependencies]
+python = ">=3.13"
+pip = ">=25.3"
+
+[pypi-dependencies]
+ipykernel = ">=7.1.0"
+pydantic-settings = ">=2.14.1"
+requests = ">=2.32.5"
+ribasim = { version = "*", extras = ["delwaq"] }
+ribasim-nl = "*"
+ribasim-tools = { git = "https://github.com/d2hydro/ribasim_delwaq_aam.git", subdirectory = "src/ribasim_tools" }
+contextily = ">=1.7.1"
