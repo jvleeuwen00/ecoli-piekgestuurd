@@ -13,7 +13,7 @@ from ribasim.delwaq import plot_fraction
 # numba not installed warning, might cause slowness
 
 # %%
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[4]
 model_name = "maasgebied_coupled"
 toml_name = "maasgebied_coupled.toml"
 model_path = (
