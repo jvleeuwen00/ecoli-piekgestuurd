@@ -1,0 +1,68 @@
+changed python version >= 3.13 instead of 12 for Ribasim_tools to be added (also requires 3.13)
+
+25/8/2026
+
+removed:
+ribasim = { path = "../../../repositories/Ribasim/python/ribasim", editable=true}
+from pyproject.toml - we are not using the ribasim repo actively
+
+!!! we koppelen de vrachten ctr dtr achterlangs, dus dan doen we het per delwaq node
+		- als we het vóór generate zouden doen kunnen we ze aan de basin.mass_load toevoegen
+		- dit is gelukt:
+			code "gemaakt" die per aangegeven locatie een ctr en dtr toevoegt en de starttijd erbij, 
+			dit zou genoeg moeten zijn voor restim (vracht wordt als constant over tijd geïnterpreteerd
+
+26/8 - nieuwe manier van tracers toevoegen door copilot, ziet er beter uit. Toch wil ik de oude bewaren om misschien later stofjes toe te voegen
+### echter add_tracer bestaat natuurlijk al dus dan is dit misschien een beetje overbodig
+
+node_loads = {
+    8007822: {"cTR1": 1},
+    8007826: {"cTR2": 1, "dTR2": 1},	
+}
+
+restim_loads = pd.DataFrame(
+    [
+        {
+            "node_id": node_id,
+            "time": model_maas.starttime, #possibly one row with starttime and one with endtime
+            "substance": substance,
+            "load": load,
+        }
+        for node_id, substances in node_loads.items()
+        for substance, load in substances.items()
+    ]
+)
+
+delwaq draaien met restim/age:
+
+- kopiëren: processen etc. voor leeftijdsberekeningen (obv ctr en dtr)
+- aanpassing in .inp bestand (welke precies weet ik niet maar die zijn reeds doorgevoerd)
+
+- draaien lukt aanvankelijk niet, probleem lijkt te zitten in includes van B7: defineren constanten voor stoffen die niet worden gegeven onder substances
+- oplossing: kopie aanhalen van B7 includes waar TR2-5 zijn weggehaald.
+- resultaat: model draait, echter stopt na een jaar:
+
+			TIME =  1Y   6D  0H  0M  0S .  33.91% Completed
+
+			NetCDF error number:   -101
+
+			NetCDF error message: NetCDF: HDF error
+ 
+- Dit is een nogal random error --> mogelijk te maken met beperkte schijfruimte
+- blijkbaar is het prima om onder block 9 wel uitvoer te specifieren die er eigenlijk niet is
+- tegelijkertijd even afvragen hoeveel dit nu waard is op de korte termijn. Misschien beter de fracties plotten over tijd:
+	- hoe veranderd de fractie RWZI tijdens afvoerpieken?
+	- parse en plot_fraction lijken heeel veel RAM te gebruiken
+	
+	
+Volgende stappen:
+
+- model in python plotten --> locaties plotten waar we kijken naar de resultaten, vanaf waar we tracers toevoegen, etc. 
+- overlap met landgebruik maken (stedelijk vs natuur vs landbouw, of verder uitgesplitst. op basis hiervan vrachten toekennen aan basin nodes
+	- e.g. polygoon bevat 70% landbouw 10% natuur 20% stedelijk --> 0.7 0.1 0.2
+		- waar ken je deze waarden aan toe? de neerslag? de drainage? en kijk je dan alleen naar de onderlinge fracties, en negeer je de buitenlandse aanvoeren etc?
+		
+	
+Numerieke diffusie: is dit wel echt een probleem of zit dit niet in delwaq geprogrammeerd; 
+-- dat de concentratie aan de benedenstroomse rand van het segment pas stof meegeeft als volgens advectie + diffusie de stof de rand heeft kunnen bereiken
+-- 
